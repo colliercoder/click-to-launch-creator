@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { ElementorElement, createElementorData, generateElementId } from '@/utils/elementorUtils';
 import { Layers, Download, Plus } from 'lucide-react';
+import WebsiteChat from '@/components/WebsiteChat';
 
 const Index = () => {
   const [elements, setElements] = useState<ElementorElement[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const addSection = () => {
     const newSection: ElementorElement = {
@@ -48,6 +50,31 @@ const Index = () => {
     });
   };
 
+  const handleChatMessage = async (message: string) => {
+    setIsProcessing(true);
+    try {
+      // Here we would integrate with an AI service to process the message
+      // and generate/modify website content based on the user's request
+      console.log('Processing message:', message);
+      
+      // For now, we'll just add a basic section to demonstrate the flow
+      addSection();
+      
+      toast({
+        title: "Processing Complete",
+        description: "Your request has been processed. You can continue making changes or export to WordPress.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was an error processing your request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-8">
@@ -80,7 +107,7 @@ const Index = () => {
             {elements.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[500px] text-gray-400">
                 <Layers className="w-12 h-12 mb-2" />
-                <p>Click "Add Section" to start building your landing page</p>
+                <p>Describe the website you want to create using the chat below</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -95,6 +122,11 @@ const Index = () => {
               </div>
             )}
           </div>
+
+          <WebsiteChat 
+            onMessageSend={handleChatMessage}
+            isLoading={isProcessing}
+          />
         </Card>
       </div>
     </div>
