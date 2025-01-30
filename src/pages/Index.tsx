@@ -44,7 +44,7 @@ const Index = () => {
 
     toast({
       title: "Export Successful",
-      description: "Your Elementor template has been exported. You can now import it into WordPress.",
+      description: "Your template has been exported. You can now import it into WordPress using the Elementor template import feature.",
     });
   };
 
@@ -71,7 +71,7 @@ const Index = () => {
                 className="flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                Export for Elementor
+                Export to WordPress
               </Button>
             </div>
           </div>
