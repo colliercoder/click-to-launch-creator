@@ -1,30 +1,16 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export const generateWebsiteContent = async (prompt: string) => {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: "You are a website designer that generates Elementor-compatible website structures. Convert user requests into website sections and components."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.7
-    })
-  });
+  try {
+    const { data, error } = await supabase.functions.invoke('generate-website', {
+      body: { prompt }
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to generate website content');
+    if (error) throw error;
+
+    return data.generatedText;
+  } catch (error) {
+    console.error('Error generating website content:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
 };
