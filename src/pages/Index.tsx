@@ -3,12 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { ElementorElement, createElementorData, generateElementId } from '@/utils/elementorUtils';
-import { Layers, Download, Plus } from 'lucide-react';
+import { generateWebsiteContent } from '@/utils/openAIService';
+import { Layers, Download, Plus, Loader2 } from 'lucide-react';
 import WebsiteChat from '@/components/WebsiteChat';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Index = () => {
   const [elements, setElements] = useState<ElementorElement[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showProcessing, setShowProcessing] = useState(false);
 
   const addSection = () => {
     const newSection: ElementorElement = {
@@ -52,41 +61,44 @@ const Index = () => {
 
   const handleChatMessage = async (message: string) => {
     setIsProcessing(true);
+    setShowProcessing(true);
     try {
-      // Here we would integrate with an AI service to process the message
-      // and generate/modify website content based on the user's request
-      console.log('Processing message:', message);
+      const generatedContent = await generateWebsiteContent(message);
       
-      // For now, we'll just add a basic section to demonstrate the flow
+      // Here we would parse the AI response and create appropriate sections
+      // For now, we'll just add a basic section
       addSection();
       
       toast({
-        title: "Processing Complete",
-        description: "Your request has been processed. You can continue making changes or export to WordPress.",
+        title: "Website Generated",
+        description: "Your website has been created! You can now make additional changes or export to WordPress.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was an error processing your request. Please try again.",
+        description: "There was an error generating your website. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
+      setShowProcessing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="container mx-auto p-8">
-        <Card className="p-6">
+        <Card className="p-6 shadow-lg border-t-4 border-primary">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <Layers className="w-6 h-6 text-primary" />
-              <h1 className="text-2xl font-bold">Landing Page Builder</h1>
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+                Landing Page Builder
+              </h1>
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={addSection}
+                onClick={() => addSection()}
                 variant="outline"
                 className="flex items-center gap-2"
               >
@@ -103,7 +115,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white border rounded-lg min-h-[500px] p-4">
+          <div className="bg-white border rounded-lg min-h-[500px] p-4 shadow-inner">
             {elements.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[500px] text-gray-400">
                 <Layers className="w-12 h-12 mb-2" />
@@ -114,7 +126,7 @@ const Index = () => {
                 {elements.map((element) => (
                   <div
                     key={element.id}
-                    className="border-2 border-dashed border-gray-200 p-4 rounded"
+                    className="border-2 border-dashed border-gray-200 p-4 rounded hover:border-primary/30 transition-colors"
                   >
                     Section {element.id}
                   </div>
@@ -129,6 +141,18 @@ const Index = () => {
           />
         </Card>
       </div>
+
+      <AlertDialog open={showProcessing}>
+        <AlertDialogContent className="flex flex-col items-center">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Generating Your Website</AlertDialogTitle>
+            <AlertDialogDescription className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p>Please wait while we create your website...</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
